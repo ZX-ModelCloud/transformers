@@ -722,6 +722,7 @@ class GPTQConfig(QuantizationConfigMixin):
         self.sym = sym
         self.true_sequential = true_sequential
         self.checkpoint_format = checkpoint_format.lower()
+        self.format = self.checkpoint_format
         self.meta = meta
         self.backend = backend.lower() if isinstance(backend, str) else backend
         self.use_cuda_fp16 = use_cuda_fp16
