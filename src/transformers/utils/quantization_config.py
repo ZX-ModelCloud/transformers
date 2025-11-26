@@ -92,6 +92,7 @@ class AWQLinearVersion(str, Enum):
 class AwqBackendPackingMethod(str, Enum):
     AUTOAWQ = "autoawq"
     LLMAWQ = "llm-awq"
+    GPTQMODEL = "gptqmodel"
 
 
 @dataclass
@@ -904,6 +905,7 @@ class AwqConfig(QuantizationConfigMixin):
         self.group_size = group_size
         self.zero_point = zero_point
         self.version = version
+        self.format = format
         self.backend = backend
         self.fuse_max_seq_len = fuse_max_seq_len
         self.modules_to_not_convert = modules_to_not_convert
@@ -922,9 +924,10 @@ class AwqConfig(QuantizationConfigMixin):
         r"""
         Safety checker that arguments are correct
         """
-        if self.backend not in [AwqBackendPackingMethod.AUTOAWQ, AwqBackendPackingMethod.LLMAWQ]:
+        print("self.backend",self.backend)
+        if self.backend not in [AwqBackendPackingMethod.AUTOAWQ, AwqBackendPackingMethod.LLMAWQ, AwqBackendPackingMethod.GPTQMODEL]:
             raise ValueError(
-                f"Only supported quantization backends in {AwqBackendPackingMethod.AUTOAWQ} and {AwqBackendPackingMethod.LLMAWQ} - not recognized backend {self.backend}"
+                f"Only supported quantization backends in {AwqBackendPackingMethod.AUTOAWQ} and {AwqBackendPackingMethod.LLMAWQ} and {AwqBackendPackingMethod.GPTQMODEL} - not recognized backend {self.backend}"
             )
 
         self.version = AWQLinearVersion.from_str(self.version)
