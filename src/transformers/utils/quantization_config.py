@@ -924,7 +924,6 @@ class AwqConfig(QuantizationConfigMixin):
         r"""
         Safety checker that arguments are correct
         """
-        print("self.backend",self.backend)
         if self.backend not in [AwqBackendPackingMethod.AUTOAWQ, AwqBackendPackingMethod.LLMAWQ, AwqBackendPackingMethod.GPTQMODEL]:
             raise ValueError(
                 f"Only supported quantization backends in {AwqBackendPackingMethod.AUTOAWQ} and {AwqBackendPackingMethod.LLMAWQ} and {AwqBackendPackingMethod.GPTQMODEL} - not recognized backend {self.backend}"

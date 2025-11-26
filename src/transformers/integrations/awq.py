@@ -214,6 +214,19 @@ def replace_with_awq_linear(
             target_cls = WQLinear_IPEX
         else:
             raise ValueError(f"Unrecognized AWQ version: {quantization_config.version}")
+    elif backend == AwqBackendPackingMethod.GPTQMODEL:
+        from gptqmodel.utils.importer import hf_select_quant_linear_v2
+        from gptqmodel.quantization import METHOD
+        target_cls = hf_select_quant_linear_v2(
+                bits=quantization_config.bits,
+                group_size=quantization_config.group_size,
+                desc_act=False,
+                sym=False,
+                format=quantization_config.format,
+                quant_method=METHOD.AWQ,
+                zero_point=quantization_config.zero_point,
+                pack=False,
+            )
     else:
         from awq.quantize.qmodule import WQLinear
 
@@ -230,14 +243,26 @@ def replace_with_awq_linear(
                 in_features = module.in_features
                 out_features = module.out_features
 
-                model._modules[name] = target_cls(
-                    w_bit=quantization_config.bits,
-                    group_size=quantization_config.group_size,
-                    in_features=in_features,
-                    out_features=out_features,
-                    bias=module.bias is not None,
-                    dev=module.weight.device,
-                )
+                if backend == AwqBackendPackingMethod.GPTQMODEL:
+                    model._modules[name] = target_cls(
+                        bits=quantization_config.bits,
+                        group_size=quantization_config.group_size,
+                        desc_act=False,
+                        sym=False,
+                        in_features=in_features,
+                        out_features=out_features,
+                        bias=module.bias,
+                        register_buffers=True,
+                    )
+                else:
+                    model._modules[name] = target_cls(
+                        w_bit=quantization_config.bits,
+                        group_size=quantization_config.group_size,
+                        in_features=in_features,
+                        out_features=out_features,
+                        bias=module.bias is not None,
+                        dev=module.weight.device,
+                    )
                 has_been_replaced = True
 
                 # Force requires grad to False to avoid unexpected errors
